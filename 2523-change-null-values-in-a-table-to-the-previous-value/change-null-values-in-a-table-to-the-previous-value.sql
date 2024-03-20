@@ -1,13 +1,11 @@
 # Write your MySQL query statement below
-with cte as (
-    select id, drink, row_number() over() as rn
-    from CoffeeShop
-),
-
-cte2 as (
-    select id, drink, rn, sum(if(drink is NULL, 0, 1)) over (order by rn) as group_id
-    from cte
+WITH cte1 AS(
+    SELECT *, ROW_NUMBER() OVER() AS num
+    FROM CoffeeShop
+), cte2 AS(
+    SELECT *, SUM(IF(drink IS NULL, 0, 1)) OVER(ORDER BY num) AS group_id
+    FROM cte1
 )
 
-select id, first_value(drink) over (partition by group_id order by rn) as drink
-from cte2
+SELECT id, FIRST_VALUE(drink) OVER(PARTITION BY group_id ORDER BY num) AS drink
+FROM cte2
