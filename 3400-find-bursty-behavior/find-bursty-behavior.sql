@@ -1,21 +1,18 @@
 # Write your MySQL query statement below
-# Write your MySQL query statement below
-
-with cte as (
-select user_id, 
-       count(post_id) over(partition by user_id) / 4 as avg_weekly_posts ,
-       count(post_id) over(partition by user_id order by post_date range between interval 6 Day preceding and current row) as weekly_post
-from Posts 
-where post_date between '2024-02-01' and '2024-02-28'
+WITH avg_post AS(
+    SELECT user_id
+        , COUNT(post_id) OVER(PARTITION BY user_id)/4 AS avg_weekly_posts
+        , COUNT(post_id) OVER(PARTITION BY user_id ORDER BY post_date RANGE BETWEEN INTERVAL 6 DAY PRECEDING AND CURRENT ROW) AS weekly_post
+    FROM  Posts
+    WHERE post_date between '2024-02-01' AND '2024-02-28'
+), max_post AS(
+    SELECT user_id
+        , MAX(weekly_post) OVER(PARTITIOn BY user_id) AS max_7day_posts
+        , avg_weekly_posts
+    FROM avg_post
 )
-, temp as (
-select user_id, 
-       max(weekly_post) over (partition by user_id) as max_7day_posts,
-       avg_weekly_posts
-from cte 
-)
+SELECT DISTINCT *
+FROM max_post
+WHERE  avg_weekly_posts*2 <= max_7day_posts
+ORDER BY user_id 
 
-select distinct * 
-from temp
-where avg_weekly_posts *2 <=max_7day_posts
-order by user_id asc 
