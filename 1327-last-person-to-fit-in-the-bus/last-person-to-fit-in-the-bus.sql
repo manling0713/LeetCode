@@ -6,9 +6,8 @@ WITH accum_weight AS(
 
 SELECT person_name
 FROM accum_weight
-WHERE turn= (
+WHERE turn = (
     SELECT MAX(turn)
     FROM accum_weight
     WHERE total_weight <= 1000
-    ORDER BY total_weight DESC
 )
