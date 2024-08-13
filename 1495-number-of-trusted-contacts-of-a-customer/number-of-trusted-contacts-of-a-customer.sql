@@ -1,24 +1,17 @@
 # Write your MySQL query statement below
-WITH trust AS(
-    SELECT user_id, COUNT(DISTINCT email) AS trusted_contacts_cnt
-    FROM Contacts co
-    LEFT JOIN Customers cu
-    ON co.contact_email = cu.email 
-    GROUP BY user_id
-), cus_trust AS(
-    SELECT customer_id, customer_name, IFNULL(trusted_contacts_cnt,0) AS trusted_contacts_cnt
-    FROM Customers c 
-    LEFT JOIN trust t
-    ON c.customer_id = t.user_id
-), cnt AS (
-    SELECT user_id, COUNT(contact_name) AS contacts_cnt
-    FROM Contacts 
-    GROUP BY user_id
+WITH customer_contact AS(
+    SELECT customer_id
+        , customer_name
+        , COUNT(contact_name) AS contacts_cnt
+        , SUM(CASE WHEN contact_email IN (SELECT email FROM Customers) THEN 1
+                ELSE 0 END) AS trusted_contacts_cnt
+    FROM Customers cu
+    LEFT JOIN Contacts co
+    ON cu.customer_id = co.user_id
+    GROUP BY customer_id
 )
-
-SELECT invoice_id, customer_name, price, IFNULL(contacts_cnt,0) AS contacts_cnt, trusted_contacts_cnt
+SELECT invoice_id, customer_name, price, contacts_cnt, trusted_contacts_cnt
 FROM Invoices i
-LEFT JOIN cnt USING(user_id)
-LEFT JOIN cus_trust c
-ON i.user_id = c.customer_id
-ORDER BY invoice_id
+LEFT JOIN customer_contact cc
+ON i.user_id = cc.customer_id
+ORDER BY 1
