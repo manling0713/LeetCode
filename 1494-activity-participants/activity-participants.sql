@@ -1,6 +1,6 @@
 # Write your MySQL query statement below
-select activity 
-from friends
-group by activity
-having count(*)> (select count(*) from friends group by activity order by 1 limit 1)
-and count(*)< (select count(*) from friends group by activity order by 1 desc limit 1)
+SELECT activity 
+FROM friends
+GROUP BY activity
+HAVING COUNT(*)> (SELECT COUNT(*) FROM friends GROUP BY activity ORDER BY 1 LIMIT 1)
+AND COUNT(*)< (SELECT COUNT(*) FROM friends GROUP BY activity ORDER BY 1 DESC LIMIT 1)
