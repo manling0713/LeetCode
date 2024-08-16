@@ -1,24 +1,32 @@
 # Write your MySQL query statement below
-WITH person_c AS(
-    SELECT id, c.name AS country
-    FROM Person p
+WITH id_country AS(
+    SELECT id, p.name, c.name AS country 
+    From Person p 
     LEFT JOIN Country c
-    ON LEFT(phone_number, 3) = country_code 
-), all_calls AS(
-    SELECT caller_id, country, duration
+    ON LEFT(phone_number, 3) = country_code
+), all_call AS(
+    SELECT caller_id AS id, country, duration
     FROM Calls c
-    LEFT JOIN person_c pc
-    ON c.caller_id = pc.id 
-    UNION ALL 
-    SELECT callee_id, country, duration
+    LEFT JOIN id_country i
+    ON c.caller_id = i.id
+    UNION ALL
+    SELECT callee_id AS id, country, duration
     FROM Calls c
-    LEFT JOIN person_c pc
-    ON c.callee_id = pc.id 
+    LEFT JOIN id_country i
+    ON c.callee_id = i.id
 )
+
 SELECT country
-FROM all_calls
+FROM all_call
 GROUP BY country
 HAVING AVG(duration) > (
     SELECT AVG(duration)
-    FROM all_calls
+    FROM all_call
 )
+
+
+
+
+
+
+
