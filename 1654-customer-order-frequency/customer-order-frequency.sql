@@ -1,16 +1,10 @@
 # Write your MySQL query statement below
-WITH all_name AS(
-    SELECT c.customer_id, c.name
-    FROM orders o 
-    LEFT JOIN Product p
-    USING(product_id)
-    LEFT JOIN Customers c 
-    USING(customer_id)
-    WHERE order_date BETWEEN '2020-06-01' AND '2020-07-31'
-    GROUP BY c.customer_id, MONTH(order_date)
-    HAVING SUM(price*quantity) >= 100
-)
 SELECT customer_id, name
-FROM all_name
+FROM Customers 
+JOIN Orders 
+USING(customer_id) 
+JOIN Product 
+USING(product_id)
 GROUP BY customer_id
-HAVING COUNT(*)=2
+HAVING SUM(IF(LEFT(order_date, 7) = '2020-06', quantity, 0) * price) >= 100
+    AND SUM(IF(LEFT(order_date, 7) = '2020-07', quantity, 0) * price) >= 100
