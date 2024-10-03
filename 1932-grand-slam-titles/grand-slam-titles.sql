@@ -2,7 +2,10 @@
 
 SELECT player_id
     , player_name
-    , SUM(player_id=Wimbledon)+SUM(player_id=Fr_open)+SUM(player_id=US_open)+SUM(player_id=Au_open) AS grand_slams_count
+    , SUM(CASE WHEN player_id = Wimbledon THEN 1 ELSE 0 END +
+        CASE WHEN player_id = Fr_open THEN 1 ELSE 0 END +
+        CASE WHEN player_id = US_open THEN 1 ELSE 0 END +
+        CASE WHEN player_id = Au_open THEN 1 ELSE 0 END ) AS grand_slams_count
 FROM Championships c
 LEFT JOIN Players p
 ON p.player_id = c.Wimbledon
