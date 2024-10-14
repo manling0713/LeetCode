@@ -4,17 +4,23 @@
 -- SUM(amount) > max_income
 
 # Write your MySQL query statement below
-with income_table as(SELECT account_id, DATE_FORMAT(day, '%Y%m') AS months, sum(amount) as total_income 
-FROM Transactions 
-where type = 'Creditor'
-GROUP BY account_id, DATE_FORMAT(day, '%Y%m')),
+WITH income_table AS(
+    SELECT account_id
+        , DATE_FORMAT(day, '%Y%m') AS months
+        , sum(amount) as total_income 
+    FROM Transactions 
+    WHERE type = 'Creditor'
+    GROUP BY account_id, DATE_FORMAT(day, '%Y%m')
+), time_table AS(
+    SELECT i.account_id
+        , months,total_income
+        , LEAD(months, 1) OVER(PARTITION BY account_id ORDER BY months) as next_month  
+FROM income_table i 
+LEFT JOIN Accounts a
+ON i.account_id = a.account_id
+WHERE total_income > max_income
+)
 
-time_table as(SELECT i.account_id, months,total_income, max_income, 
-lead(months, 1) over(partition by account_id order by months) as next_month  
-FROM income_table i join Accounts a
-on i.account_id = a.account_id
-where total_income>max_income)
-
-select distinct(account_id)
-from time_table 
-where next_month - months = 1 
+SELECT DISTINCT account_id
+FROM time_table 
+WHERE next_month - months = 1 
