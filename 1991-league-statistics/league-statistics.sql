@@ -1,24 +1,25 @@
 # Write your MySQL query statement below
-WITH goal AS(
-    SELECT home_team_id AS team_id, home_team_goals AS goals_for, away_team_goals AS against
-        , CASE WHEN home_team_goals > away_team_goals THEN 3
-            WHEN home_team_goals = away_team_goals THEN 1
-            ELSE 0 END AS points
-    FROM Matches 
+WITH all_matches AS(
+    SELECT home_team_id
+        , home_team_goals AS home
+        , away_team_goals AS away 
+    FROM matches
     UNION ALL
-    SELECT away_team_id AS team_id, away_team_goals AS goals_for, home_team_goals AS against
-            , CASE WHEN home_team_goals < away_team_goals THEN 3
-            WHEN home_team_goals = away_team_goals THEN 1
-            ELSE 0 END AS points
-    FROM Matches 
+    SELECT away_team_id AS home_team_id
+        , away_team_goals AS home
+        , home_team_goals AS away 
+    FROM matches
 )
+
 SELECT team_name
     , COUNT(*) AS matches_played
-    , SUM(points) AS points
-    , SUM(goals_for) AS goal_for
-    , SUM(against) AS goal_against
-    , SUM(goals_for) - SUM(against) AS goal_diff
-FROM goal g
-LEFT JOIN Teams t USING(team_id)
+    , SUM(CASE WHEN home > away THEN 3
+            WHEN home = away THEN 1 ELSE 0 END) AS points
+    , SUM(home) AS goal_for
+    , SUM(away) AS goal_against
+    , SUM(home) - SUM(away) AS goal_diff
+FROM all_matches a
+LEFT JOIN teams t
+ON a.home_team_id = t.team_id
 GROUP BY team_name
-ORDER BY points DESC, points, goal_diff DESC, team_name
+ORDER BY points DESC, goal_diff DESC, team_name
