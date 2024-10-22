@@ -1,17 +1,23 @@
-with f as (
-select user1_id, user2_id 
-from Friendship
-union 
-select user2_id user1_id, user1_id user2_id
-from Friendship
+# Write your MySQL query statement below
+
+WITH all_users AS(
+    SELECT user1_id AS user_id
+        , user2_id AS friend
+    FROM Friendship
+    UNION ALL
+    SELECT user2_id AS user_id 
+        , user1_id AS friend
+    FROM Friendship
 )
 
-select a.user1_id, a.user2_id, count(c.user2_id) common_friend
-from Friendship a 
-join f b 
-on a.user1_id = b.user1_id # u1 friends
-join f c 
-on a.user2_id = c.user1_id # u2 friends
-and b.user2_id = c.user2_id # u1 u2 comman friends
-group by a.user1_id, a.user2_id
-having count(c.user2_id) >= 3
+SELECT a1.user_id AS user1_id
+    , a2.user_id AS user2_id
+    , COUNT(*) AS common_friend
+FROM all_users a1
+LEFT JOIN all_users a2
+ON a1.user_id < a2.user_id
+    AND a1.friend = a2.friend
+WHERE (a1.user_id, a2.user_id) IN (SELECT * FROM friendship)
+GROUP BY user1_id, user2_id
+HAVING COUNT(*) >= 3;
+
