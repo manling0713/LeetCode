@@ -1,10 +1,14 @@
 # Write your MySQL query statement below
-WITH cte AS(
-    SELECT *
-        , RANK() OVER(PARTITION BY gender ORDER BY user_id) AS rnk
-        , IF(gender = 'female',1, IF(gender='other',2 ,3 )) AS rnk2
+
+SELECT user_id
+    , gender
+FROM(
+    SELECT user_id
+        , gender
+        , CASE WHEN gender = 'female' THEN 1
+            WHEN gender = 'other' THEN 2
+            ELSE 3 END AS num1
+        , ROW_NUMBER() OVER (PARTITION BY gender ORDER BY user_id) num2
     FROM Genders
-)
-SELECT user_id, gender
-FROM cte
-ORDER BY rnk, rnk2
+    ORDER BY num2, num1
+) AS sub
