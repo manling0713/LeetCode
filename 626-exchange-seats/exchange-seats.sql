@@ -1,8 +1,14 @@
 # Write your MySQL query statement below
-SELECT IF(
-    id < (SELECT MAX(id) FROM Seat),
-    IF( id % 2 = 0, id - 1, id + 1 ),
-    IF( id % 2 = 0, id - 1, id )
-) AS id, student
-FROM Seat
-ORDER BY id
+WITH new_seat AS(
+    SELECT CASE WHEN MOD(id, 2) = 1 AND id IN (SELECT MAX(id) FROM Seat) THEN id
+            WHEN MOD(id, 2) = 1 THEN id + 1
+            ELSE id - 1 END AS new_id
+        , student
+    FROM Seat
+)
+
+
+SELECT new_id AS id
+    , student
+FROM new_seat
+ORDER BY id;
