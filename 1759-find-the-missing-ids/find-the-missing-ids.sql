@@ -1,13 +1,12 @@
 # Write your MySQL query statement below
-WITH RECURSIVE id_seq AS (
-    SELECT 1 as continued_id
-    UNION 
-    SELECT continued_id + 1
-    FROM id_seq
-    WHERE continued_id < (SELECT MAX(customer_id) FROM Customers) 
+WITH RECURSIVE seq(n) AS(
+    SELECT 1
+    UNION ALL
+    SELECT n + 1
+    FROM seq
+    WHERE n + 1 <= (SELECT MAX(customer_id) FROM Customers)
 )
 
-SELECT continued_id AS ids
-FROM id_seq
-WHERE continued_id NOT IN (SELECT customer_id FROM Customers)  
-
+SELECT n AS ids
+FROM seq
+WHERE n NOT IN (SELECT DISTINCT customer_id FROM Customers)
