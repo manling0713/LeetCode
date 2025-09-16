@@ -1,15 +1,25 @@
 # Write your MySQL query statement below
-
-SELECT player_id
+WITH all_champ AS(
+    SELECT year
+        , Wimbledon AS player_id
+    FROM Championships
+    UNION ALL
+    SELECT year
+        , Fr_open AS player_id
+    FROM Championships
+    UNION ALL
+    SELECT year
+        , Us_open AS player_id
+    FROM Championships
+    UNION ALL
+    SELECT year
+        , AU_open AS player_id
+    FROM Championships
+)
+SELECT a.player_id
     , player_name
-    , SUM(CASE WHEN player_id = Wimbledon THEN 1 ELSE 0 END +
-        CASE WHEN player_id = Fr_open THEN 1 ELSE 0 END +
-        CASE WHEN player_id = US_open THEN 1 ELSE 0 END +
-        CASE WHEN player_id = Au_open THEN 1 ELSE 0 END ) AS grand_slams_count
-FROM Championships c
+    , COUNT(*) AS grand_slams_count
+FROM all_champ a
 LEFT JOIN Players p
-ON p.player_id = c.Wimbledon
-    OR p.player_id = c.Fr_open
-    OR p.player_id = c.US_open
-    OR p.player_id = c.Au_open
-GROUP BY 1;
+ON a.player_id = p.player_id 
+GROUP BY a.player_id, player_name
