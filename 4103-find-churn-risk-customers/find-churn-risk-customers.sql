@@ -50,8 +50,7 @@ WITH ranked_events AS (
         monthly_amount,
         ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY event_date DESC, event_id DESC) AS rn,
         MAX(monthly_amount) OVER (PARTITION BY user_id) AS max_historical_amount,
-        MIN(event_date) OVER (PARTITION BY user_id) AS first_date,
-        MAX(event_date) OVER () AS max_system_date -- 全系統最新日期作為當前基準點
+        MIN(event_date) OVER (PARTITION BY user_id) AS first_date
     FROM subscription_events
 ),
 downgrade_users AS (
