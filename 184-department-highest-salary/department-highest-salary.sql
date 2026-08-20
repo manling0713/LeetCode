@@ -1,12 +1,15 @@
 # Write your MySQL query statement below
-WITH dep_rank AS(
+WITH salary_rank AS(
     SELECT d.name AS Department
-        ,e.name AS Employee
+        , e.name AS Employee
         , salary
-        , RANK() OVER(PARTITION BY departmentId ORDER BY salary DESC) AS rnk
+        , DENSE_RANK() OVER(PARTITION BY d.name ORDER BY salary DESC) AS rnk
     FROM Employee e
     LEFT JOIN Department d
-    ON e.departmentId = d.id)
-SELECT Department, Employee, Salary
-FROM  dep_rank
+    ON e.departmentId = d.id
+)
+SELECT  Department
+    , Employee
+    , salary
+FROM salary_rank
 WHERE rnk = 1
