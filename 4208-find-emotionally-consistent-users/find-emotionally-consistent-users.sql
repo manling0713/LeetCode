@@ -17,13 +17,11 @@ WITH target_users AS(
         , reaction
         , COUNT(*) AS reaction_cnt
     FROM reactions
-    WHERE user_id IN (SELECT user_id FROM target_users)
     GROUP BY user_id, reaction
 ), user_total AS(
     SELECT user_id
         , COUNT(*) AS total_reactions
     FROM reactions
-    WHERE user_id IN (SELECT user_id FROM target_users)
     GROUP BY user_id
 )
 SELECT ur.user_id
@@ -32,7 +30,8 @@ SELECT ur.user_id
 FROM user_reaction ur
 LEFT JOIN user_total ut
 ON ur.user_id = ut.user_id
-WHERE ROUND(reaction_cnt / total_reactions, 2) > 0.6
+WHERE ur.user_id IN (SELECT user_id FROM target_users)
+    AND ROUND(reaction_cnt / total_reactions, 2) > 0.6
 ORDER BY 3 DESC, 1
 
 
