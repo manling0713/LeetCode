@@ -6,6 +6,11 @@
 -- GROUP BY e1.name
 -- HAVING COUNT(e2.id) >= 5
 
-select name from Employee 
-where id in (select managerId from Employee group by managerId 
-having count(managerId)>4);
+SELECT name 
+FROM Employee 
+WHERE id in (
+    SELECT managerId 
+    FROM Employee 
+    GROUP BY managerId 
+    HAVING COUNT(managerId) >= 5
+)
